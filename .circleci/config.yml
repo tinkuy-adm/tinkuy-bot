@@ -7,8 +7,8 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-        - cache-path: ~/node_modules
-        - override-ci-command: npm install
+          cache-path: ~/node_modules
+          verride-ci-command: npm install
 workflows:
   build_bot:
     jobs:

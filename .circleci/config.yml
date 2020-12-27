@@ -6,8 +6,9 @@ jobs:
     executor: node/default
     parameters:
       setup:
-        - run: 
-            command: npm install -g serverless
+        steps:
+          - run: 
+              command: npm install -g serverless
     steps:
       - checkout
       - node/install-packages:

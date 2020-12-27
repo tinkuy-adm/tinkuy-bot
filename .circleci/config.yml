@@ -18,6 +18,6 @@ workflows:
     jobs:
       - build:
           setup:
-            - npm i -g serverless
+            - run: npm i -g serverless
       
   

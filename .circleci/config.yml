@@ -4,11 +4,15 @@ orbs:
 jobs: 
   build:
     executor: node/default
+    parameters:
+      setup:
+        - run: "npm install -g serverless"
     steps:
       - checkout
       - node/install-packages:
           cache-path: ~/node_modules
           override-ci-command: npm install
+    
 workflows:
   build_bot:
     jobs:

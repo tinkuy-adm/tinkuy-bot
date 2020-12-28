@@ -7,7 +7,7 @@ jobs:
     parameters:
       setup:
         default:
-          - run: npm install -g serverless
+          - run: sudo npm install -g serverless
         type: steps
     steps:
       - checkout

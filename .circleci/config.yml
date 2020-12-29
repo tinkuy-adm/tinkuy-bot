@@ -16,15 +16,18 @@ jobs:
     steps:
       - checkout
       - steps: << parameters.setup >>
+      - restore_cache:
+          keys:
+            - v1-deps-{{ checksum "package-lock.json" }}
       - node/install-packages:
-          cache-path: node_modules/
           override-ci-command: npm install
+      - run: echo $AWS_ACCESS_KEY_ID
       - run: sls deploy --stage qa --verbose
       - run: invoke --function webhookRegister
       - save_cache:
           paths:
             - node_modules/
-          key: bot-{{ checksum "package-lock.json" }}
+          key: v1-deps-{{ checksum "package-lock.json" }}
     
 workflows:
   build_bot:

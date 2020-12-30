@@ -6,7 +6,6 @@ jobs:
     executor: node/default
     steps:
       - checkout
-      - steps: << parameters.setup >>
       - node/install-packages
       - run:
           name: Build and deploy

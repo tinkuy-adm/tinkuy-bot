@@ -15,10 +15,8 @@ jobs:
             export TELEGRAM_KEY=$TELEGRAM_KEY_DEV
             export PATH="node_modules/.bin:$PATH"
             sls deploy --stage qa --verbose
-    
+
 workflows:
   main:
     jobs:
       - build_and_deploy
-      
-  

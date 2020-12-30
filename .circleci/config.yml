@@ -4,9 +4,6 @@ orbs:
 jobs: 
   build_and_deploy:
     executor: node/default
-    parameters:
-      setup:
-        type: steps
     steps:
       - checkout
       - node/install-packages

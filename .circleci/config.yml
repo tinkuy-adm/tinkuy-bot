@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   node: circleci/node@4.1.0
 jobs: 
-  build:
+  build_and_deploy:
     executor: node/default
     parameters:
       setup:
@@ -12,20 +12,22 @@ jobs:
     steps:
       - checkout
       - steps: << parameters.setup >>
-      - node/install-packages:
-          cache-path: node_modules
-          override-ci-command: npm i
+      - node/install-packages
       - run:
           name: Set AWS credentials
           command: |
             export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_DEV
             export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY_DEV
-            export TELEGRAM_KEY=$TELEGRAM_KEY_DEV
-            sls deploy --stage qa --verbose
+      - run:
+          name: Set Telegram key
+          command: export TELEGRAM_KEY=$TELEGRAM_KEY_DEV
+      - run:
+          name: Build and Deploy
+          command: sls deploy --stage qa --verbose
     
 workflows:
-  build_bot:
+  main:
     jobs:
-      - build
+      - build_and_deploy
       
   

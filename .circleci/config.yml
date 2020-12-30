@@ -2,22 +2,21 @@ version: 2.1
 orbs:
   node: circleci/node@4.1.0
 jobs: 
-  build:
+  build_and_deploy:
     executor: node/default
-    parameters:
-      setup:
-        type: steps
     steps:
       - checkout
-      - node/install-packages:
-          cache-path: ~/node_modules
-          override-ci-command: npm install
-    
+      - node/install-packages
+      - run:
+          name: Build and deploy
+          command: |
+            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_DEV
+            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY_DEV
+            export TELEGRAM_KEY=$TELEGRAM_KEY_DEV
+            export PATH="node_modules/.bin:$PATH"
+            sls deploy --stage qa --verbose
+
 workflows:
-  build_bot:
+  main:
     jobs:
-      - build:
-          setup:
-            - npm i -g serverless
-      
-  
+      - build_and_deploy

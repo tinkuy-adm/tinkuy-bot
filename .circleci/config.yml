@@ -10,24 +10,18 @@ jobs:
           - run: sudo npm install -g serverless
         type: steps
     environment:
-      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
-      TELEGRAM_KEY: $TELEGRAM_KEY
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_DEV
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_KEY_DEV
+      TELEGRAM_KEY: $TELEGRAM_KEY_DEV
     steps:
       - checkout
       - steps: << parameters.setup >>
-      - restore_cache:
-          keys:
-            - v1-deps-{{ checksum "package-lock.json" }}
       - node/install-packages:
-          override-ci-command: npm install
+          cache-path: node_modules
+          override-ci-command: npm i
       - run: echo $AWS_ACCESS_KEY_ID
       - run: sls deploy --stage qa --verbose
       - run: invoke --function webhookRegister
-      - save_cache:
-          paths:
-            - node_modules/
-          key: v1-deps-{{ checksum "package-lock.json" }}
     
 workflows:
   build_bot:

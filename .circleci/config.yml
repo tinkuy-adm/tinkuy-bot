@@ -9,19 +9,20 @@ jobs:
         default:
           - run: sudo npm install -g serverless
         type: steps
-    environment:
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_DEV}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_KEY_DEV}
-      TELEGRAM_KEY: ${TELEGRAM_KEY_DEV}
     steps:
       - checkout
       - steps: << parameters.setup >>
       - node/install-packages:
           cache-path: node_modules
           override-ci-command: npm i
-      - run: echo $AWS_ACCESS_KEY_ID
+      - run:
+          name: Set AWS credentials
+          command: |
+            echo 'export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_DEV' >> $BASH_ENV
+            echo 'export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY_DEV' >> $BASH_ENV
+            echo 'export TELEGRAM_KEY=$TELEGRAM_KEY_QA' >> $BASH_ENV
+            source $BASH_ENV
       - run: sls deploy --stage qa --verbose
-      - run: invoke --function webhookRegister
     
 workflows:
   build_bot:

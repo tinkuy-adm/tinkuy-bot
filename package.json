@@ -21,7 +21,8 @@
     "eslint": "^7.16.0",
     "eslint-config-airbnb": "^18.2.1",
     "google-spreadsheet": "^3.0.13",
-    "luxon": "^1.25.0"
+    "luxon": "^1.25.0",
+    "serverless": "^2.16.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.51",

@@ -55,5 +55,5 @@ functions:
           method: post
   webhookRegister:
     environment:
-      API_INVOKE_URL: !Ref ApiGatewayRestApi
+      API_INVOKE_ID: !Ref ApiGatewayRestApi
     handler: app/handler.webhookRegister

@@ -15,7 +15,7 @@ jobs:
             export TELEGRAM_KEY=$TELEGRAM_KEY_DEV
             export PATH="node_modules/.bin:$PATH"
             sls deploy --stage dev --verbose
-            sls invoke --function webhookRegister
+            sls invoke --function webhookRegister --stage dev
 
 workflows:
   main:

@@ -4,18 +4,18 @@ provider:
   name: aws
   runtime: nodejs12.x
   stage: ${opt:stage}
-  region: ${self:custom.stages.${self:custom.currentStage}.region}
+  region: us-east-1
   environment:
     BASE_URL: https://api.telegram.org/bot${env:TELEGRAM_KEY}/sendMessage
     SET_WEBHOOK: https://api.telegram.org/bot${env:TELEGRAM_KEY}/setWebhook 
     LOCATION_URL: https://api.telegram.org/bot${env:TELEGRAM_KEY}/sendLocation
     PHOTOS_URL: https://api.telegram.org/bot${env:TELEGRAM_KEY}/sendPhoto
     
-    SERVERLESS_REGION: ${self:custom.stages.${self:custom.currentStage}.region}
-    TABLE_TINKUY_COORDS: ${self:custom.db.coords.${self:custom.currentStage}}
-    TABLE_TINKUY_COORDS_HIST: ${self:custom.db.coords-hist.${self:custom.currentStage}}
-    TABLE_TINKUY_CLUSTER: ${self:custom.db.cluster.${self:custom.currentStage}}
-    TABLE_POLICE_COORDS: ${self:custom.db.police.${self:custom.currentStage}}
+    SERVERLESS_REGION: us-east-1
+    TABLE_TINKUY_COORDS: usr-coords-${self:custom.currentStage}
+    TABLE_TINKUY_COORDS_HIST: usr-coords-hist-${self:custom.currentStage}
+    TABLE_TINKUY_CLUSTER: tinkuy-clusters.${self:custom.currentStage}
+    TABLE_POLICE_COORDS: police-coords-${self:custom.currentStage}
 
     
   iamRoleStatements:
@@ -39,23 +39,8 @@ custom:
   stages:
     qa:
       stageName: qas
-      region: us-east-1
     prd:
       stageName: prd
-      region: us-east-1
-  db:
-    coords:
-      qa: usr-coords-hist-qas
-      prd: usr-coords-hist
-    coords-hist:
-      qa: tinkuy-coords-qas
-      prd: tinkuy-coords
-    cluster:
-      qa: tinkuy-clusters-qas
-      prd: tinkuy-clusters
-    police:
-      qa: poli-coords-qas
-      prd: poli-coords
 
 plugins:
   - serverless-plugin-typescript 

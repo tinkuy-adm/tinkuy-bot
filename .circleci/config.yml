@@ -8,13 +8,14 @@ jobs:
       - checkout
       - node/install-packages
       - run:
-          name: Build and deploy
+          name: Build, deploy and register
           command: |
             export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_DEV
             export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY_DEV
             export TELEGRAM_KEY=$TELEGRAM_KEY_DEV
             export PATH="node_modules/.bin:$PATH"
             sls deploy --stage dev --verbose
+            sls invoke --function webhookRegister
 
 workflows:
   main:

@@ -16,12 +16,10 @@ export class WebhookController {
   }
 
   async registerAPI(event: any, context?: Context): Promise<any> {
-    console.log(event)
-    console.log(context)
-    // let urlAPIGateway = event.url
-    // let setWebhookUrl = `${process.env.SET_WEBHOOK}?url=${urlAPIGateway}`
-    // let response = await provider.api.post(setWebhookUrl, {})
-    // console.log(response)
+    let urlAPIGateway = `https://${process.env.API_INVOKE_ID}.execute-api.us-east-1.amazonaws.com/dev/webhook`
+    let setWebhookUrl = `${process.env.SET_WEBHOOK}?url=${urlAPIGateway}`
+    let response = await provider.api.post(setWebhookUrl, {})
+    console.log(response)
     return {
       statusCode: 200,
       body: JSON.stringify({})

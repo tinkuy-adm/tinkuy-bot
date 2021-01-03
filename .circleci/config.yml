@@ -14,7 +14,7 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY_DEV
             export TELEGRAM_KEY=$TELEGRAM_KEY_DEV
             export PATH="node_modules/.bin:$PATH"
-            sls deploy --stage qa --verbose
+            sls deploy --stage dev --verbose
 
 workflows:
   main:

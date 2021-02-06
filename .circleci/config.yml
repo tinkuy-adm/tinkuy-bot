@@ -10,7 +10,7 @@ jobs:
       - checkout
       - aws-cli/setup
       - node/install-packages
-      - serverless/setup
+      - serverless-framework/setup
       - run:
           name: Deploy bot
           command: |

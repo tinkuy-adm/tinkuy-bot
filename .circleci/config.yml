@@ -8,11 +8,17 @@ jobs:
       - checkout
       - node/install-packages
       - run:
-          name: Build, deploy and register
+          name: Post Setup
+          command: |
+            echo "export PATH=node_modules/.bin:$PATH" >> $BASH_ENV
+      - run:
+          name: Deploy bot
           command: |
             export TELEGRAM_KEY=$TELEGRAM_KEY_DEV
-            export PATH="node_modules/.bin:$PATH"
             sls deploy --stage dev --verbose
+      - run:
+          name: Register bot
+          command: |
             sls invoke --function webhookRegister --stage dev
 
 workflows:

@@ -8,7 +8,8 @@ jobs:
     executor: node/default
     steps:
       - checkout
-      - aws-cli/setup
+      - aws-cli/setup:
+          aws-region: us-east-1
       - node/install-packages
       - serverless-framework/setup
       - run:

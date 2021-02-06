@@ -16,7 +16,8 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup
-      - node/install-packages
+      - node/install-packages:
+          cache-version: v2
       - run:
           name: Deploy bot
           command: |
@@ -24,13 +25,19 @@ jobs:
             sls deploy --stage dev --verbose
 
   register_bot:
+    parameters:
+      telegram_key:
+        default: $TELEGRAM_KEY_DEV
+        type: string
     executor: node/default
     environment:
       AWS_DEFAULT_REGION: us-east-1
+      TELEGRAM_KEY: <<parameters.telegram_key>>
     steps:
       - checkout
       - aws-cli/setup
-      - node/install-packages
+      - node/install-packages:
+          cache-version: v2
       - run:
           name: Register bot
           command: |

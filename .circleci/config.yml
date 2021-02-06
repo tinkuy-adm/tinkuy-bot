@@ -3,11 +3,17 @@ orbs:
   aws-cli: circleci/aws-cli@1.3.2
   serverless-framework: circleci/serverless-framework@1.0.1
   node: circleci/node@4.1.0
+
 jobs: 
   build_and_deploy:
+    parameters:
+      telegram_key:
+        default: $TELEGRAM_KEY_DEV
+        type: string
     executor: node/default
     environment:
       AWS_DEFAULT_REGION: us-east-1
+      TELEGRAM_KEY: <<parameters.telegram_key>>
     steps:
       - checkout
       - aws-cli/setup

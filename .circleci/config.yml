@@ -23,8 +23,18 @@ jobs:
           name: Deploy bot
           command: |
             sls deploy --stage dev --verbose
+  register_bot:
+    executor: serverless-framework/default
+    environment:
+      AWS_DEFAULT_REGION: us-east-1
+    steps:
+      - checkout
+      - aws-cli/setup
+      - serverless-framework/setup
+      - run: sls invoke --function webhookRegister --stage dev
 
 workflows:
   main:
     jobs:
       - build_and_deploy
+      - register_bot

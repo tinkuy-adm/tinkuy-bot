@@ -17,10 +17,10 @@ jobs:
       - checkout
       - aws-cli/setup
       - node/install-packages
-      - run: export PATH="node_modules/.bin:$PATH"
       - run:
           name: Deploy bot
           command: |
+            export PATH="node_modules/.bin:$PATH"
             sls deploy --stage dev --verbose
 
   register_bot:
@@ -31,10 +31,10 @@ jobs:
       - checkout
       - aws-cli/setup
       - node/install-packages
-      - run: export PATH="node_modules/.bin:$PATH"
       - run:
           name: Register bot
           command: |
+            export PATH="node_modules/.bin:$PATH"
             sls invoke --function webhookRegister --stage dev
 
 workflows:

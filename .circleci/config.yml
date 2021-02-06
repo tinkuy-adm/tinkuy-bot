@@ -24,7 +24,7 @@ jobs:
             sls deploy --stage dev --verbose
 
   register_bot:
-    executor: serverless-framework/default
+    executor: node/default
     environment:
       AWS_DEFAULT_REGION: us-east-1
     steps:

@@ -8,7 +8,7 @@ jobs:
     parameters:
       telegram_key:
         default: $TELEGRAM_KEY_DEV
-        type: string
+        type: env_var_name
     executor: node/default
     environment:
       AWS_DEFAULT_REGION: us-east-1
@@ -28,7 +28,7 @@ jobs:
     parameters:
       telegram_key:
         default: $TELEGRAM_KEY_DEV
-        type: string
+        type: env_var_name
     executor: node/default
     environment:
       AWS_DEFAULT_REGION: us-east-1

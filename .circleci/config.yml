@@ -23,7 +23,7 @@ jobs:
           name: Deploy bot
           command: |
             source ./setup-env.sh
-            serverlesss deploy --stage <<parameters.deploy_env>> --verbose
+            serverless deploy --stage <<parameters.deploy_env>> --verbose
 
   register_bot:
     executor: aws-cli/default

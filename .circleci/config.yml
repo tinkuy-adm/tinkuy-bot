@@ -39,7 +39,7 @@ jobs:
       - run:
           name: Register bot
           command: 
-            aws lambda invoke --function-name $FUNCTION_REGISTER_NAME
+            aws lambda invoke --function-name $FUNCTION_REGISTER_NAME response.json
 
 workflows:
   development:

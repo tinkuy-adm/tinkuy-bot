@@ -7,7 +7,7 @@ jobs:
   build_and_deploy:
     parameters:
       telegram_key:
-        default: $TELEGRAM_KEY_DEV
+        default: TELEGRAM_KEY_DEV
         type: env_var_name
     executor: node/default
     environment:
@@ -27,7 +27,7 @@ jobs:
   register_bot:
     parameters:
       telegram_key:
-        default: $TELEGRAM_KEY_DEV
+        default: TELEGRAM_KEY_DEV
         type: env_var_name
     executor: node/default
     environment:

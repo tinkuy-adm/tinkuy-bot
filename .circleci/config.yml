@@ -60,3 +60,5 @@ workflows:
           deploy_env: prd
       - register_bot:
           register_env: prd
+          requires:
+            - build_and_deploy

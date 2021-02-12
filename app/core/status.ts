@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
-import * as provider from '../util/provider';
+import { DynamoDB } from 'aws-sdk'
+import { dynamoDbInstance } from '../common/db'
 
 const reply_message = {
   detencion: {
@@ -14,35 +15,34 @@ const reply_message = {
   }
 }
 
-export async function informStatus(chatId, dynamoDb, status) {
+export async function informStatus(chatId, status) {
   const usr_tlg = "BOT#" + chatId.toString()
-  const params = {
+  const params: DynamoDB.DocumentClient.GetItemInput = {
     Key: {
       "usr_tlg": usr_tlg
     },
     TableName: process.env.TABLE_TINKUY_COORDS
-  };
+  }
+
   try {
-    const result = await dynamoDb.get(params).promise();
+    const result = await dynamoDbInstance.get(params).promise();
     const item = result.Item;
     const lat = item.latitud.toString()
     const long = item.longitud.toString();
     const lastLocationUpdate = DateTime.fromMillis(item.tstamp * 1000);
 
     let now = DateTime.local()
+
     if (now.diff(lastLocationUpdate, 'minutes').toObject().minutes > 15) {
-      let text = reply_message[status].resendLocation;
-      const request = { text: text, chat_id: chatId }
-      console.log(process.env.BASE_URL)
-      const { data } = await provider.api.post(process.env.BASE_URL, request);
-      return data;
+      let textResponse = reply_message[status].resendLocation;
+      return { text: textResponse }
     }
 
     let timestamp = Math.floor(now.toSeconds())
     const usr_tlg = "BOT#" + chatId.toString()
     let text = ''
     try {
-      const params_update = {
+      const params_update: DynamoDB.DocumentClient.UpdateItemInput = {
         TableName: process.env.TABLE_TINKUY_COORDS,
         Key: {
           "usr_tlg": usr_tlg
@@ -58,7 +58,7 @@ export async function informStatus(chatId, dynamoDb, status) {
           ":z": timestamp
         }
       };
-      await dynamoDb.update(params_update).promise();
+      await dynamoDbInstance.update(params_update).promise();
     }
     catch (Error) {
       const params_put = {
@@ -72,23 +72,17 @@ export async function informStatus(chatId, dynamoDb, status) {
         TableName: process.env.TABLE_TINKUY_COORDS
       };
 
-      await dynamoDb.put(params_put).promise();
+      await dynamoDbInstance.put(params_put).promise();
     }
 
     text += ' ' + reply_message[status].successReply;
 
-    const request = { text: text, chat_id: chatId }
-    console.log(process.env.BASE_URL)
-    const { data } = await provider.api.post(process.env.BASE_URL, request);
-    return data;
+    return { text: text }
   }
   catch (Error) {
     console.log(Error.message);
     let text = reply_message[status].noLocation;
-    const request = { text: text, chat_id: chatId }
-    console.log(process.env.BASE_URL)
-    const { data } = await provider.api.post(process.env.BASE_URL, request);
-    return data;
+    return { text: text }
   }
 }
 

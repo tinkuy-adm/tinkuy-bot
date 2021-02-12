@@ -1,9 +1,8 @@
 import {S3} from "aws-sdk"
-import * as provider from '../util/provider';
 
-const s3 = new S3({region: 'us-east-1'});
+// const s3 = new S3({region: 'us-east-1'});
 
-export async function sendInfo(chatId){
+export function sendInfo(){
   // let infoResponse = await s3.getObject({Bucket: 'tinkuy-bot-general', Key:'assets/info.txt'}).promise()
   let text = ""
 
@@ -41,7 +40,5 @@ export async function sendInfo(chatId){
   text += "9. Si los ternas te detienen, como civiles, tienes derecho a defenderte. La resistencia a la autoridad solo viene cuando el policía esta identificado.\n"
   text += "Último consejo: Los ternas por lo general van vestidos con ropa de color 'normal'. Si puedes, ve a manifestarte vestido de negro para diferenciarte.\n"
 
-  const request = { text: text, chat_id: chatId }
-  console.log(process.env.BASE_URL)
-  return await provider.api.post(process.env.BASE_URL, request);
+  return text
 }

@@ -1,29 +1,42 @@
-import { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import * as webhookService from '../service/webhook.service';
-import { MessageUtil } from '../util/message';
-import * as provider from '../util/provider';
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda'
+import { telegramBot } from '../common/telegram'
+import * as webhookService from '../service/webhook.service'
 
 export class WebhookController {
 
-  async handleMessage(event: APIGatewayProxyEvent, context?: Context): Promise<any> {
+  async handleMessage(event: APIGatewayProxyEvent, context?: Context): Promise<APIGatewayProxyResult> {
     console.log('functionName', context.functionName);
+    const eventBody = JSON.parse(event.body)
+    let lambdaResponse: APIGatewayProxyResult = {
+      statusCode: 200,
+      body: JSON.stringify(null)
+    }
     try {
-      const result = await webhookService.response(event)
-      return MessageUtil.success(result)
-    } catch (err) {
+      const webhookResponse = await webhookService.response(event)
+      lambdaResponse.body = JSON.stringify(webhookResponse)
+    } 
+    catch (err) {
       console.log(err)
+      lambdaResponse.statusCode = 500
+      lambdaResponse.body = JSON.stringify(err)
+      telegramBot.sendMessage(eventBody.userMessage.chat.id, "Ups, ocurrió un error")
+    }
+    finally {
+      return lambdaResponse
     }
   }
 
   async registerAPI(event: any, context?: Context): Promise<any> {
-    let urlAPIGateway = `https://${process.env.API_INVOKE_ID}.execute-api.us-east-1.amazonaws.com/dev/webhook`
-    let setWebhookUrl = `${process.env.SET_WEBHOOK}?url=${urlAPIGateway}`
-    let response = await provider.api.post(setWebhookUrl, {})
-    console.log(response)
+    const botWebhookUrl =  process.env.API_INVOKE_ID
+    const botEnvironment = process.env.stage
+    let urlAPIGateway = `https://${botWebhookUrl}.execute-api.us-east-1.amazonaws.com/${botEnvironment}/webhook`
+    let response = await telegramBot.setWebHook(urlAPIGateway)
+    console.log(`Register bot response: ${response}`)
     return {
       statusCode: 200,
-      body: JSON.stringify({})
+      body: JSON.stringify({message: 'Bot registrado'})
     }
   }
   
 }
+

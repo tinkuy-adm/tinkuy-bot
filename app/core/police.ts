@@ -1,17 +1,18 @@
 import { DateTime } from "luxon";
 import { DynamoDB } from 'aws-sdk';
-import * as provider from '../util/provider';
+import { dynamoDbInstance } from '../common/db'
 
-export async function informPolicePresence(chatId, dynamoDb) {
+export async function informPolicePresence(chatId) {
   const usr_tlg = "BOT#" + chatId.toString()
-  const params = {
+  const params: DynamoDB.DocumentClient.GetItemInput = {
     Key: {
       "usr_tlg": usr_tlg
     },
     TableName: process.env.TABLE_TINKUY_COORDS
-  };
+  }
+
   try {
-    const result = await dynamoDb.get(params).promise();
+    const result = await dynamoDbInstance.get(params).promise();
     const item = result.Item;
     const lat = item.latitud.toString()
     const long = item.longitud.toString();
@@ -29,21 +30,13 @@ export async function informPolicePresence(chatId, dynamoDb) {
       TableName: process.env.TABLE_POLICE_COORDS
     };
 
-    await dynamoDb.put(insert_params).promise();
+    await dynamoDbInstance.put(insert_params).promise();
 
-    let text = "Ubicación de policia actualizada. Gracias por colaborar!\n";
-    const request = { text: text, chat_id: chatId }
-    console.log(process.env.BASE_URL)
-    const { data } = await provider.api.post(process.env.BASE_URL, request);
-    return data;
+    return { text: "Ubicación de policia actualizada. Gracias por colaborar!\n" }
   }
   catch (Error) {
     console.log(Error);
-    let text = "Envíame tu ubicación para poder saber dónde esta la policia y vuelve a usar el comando /poli.\n";
-    const request = { text: text, chat_id: chatId }
-    console.log(process.env.BASE_URL)
-    const { data } = await provider.api.post(process.env.BASE_URL, request);
-    return data;
+    return { text: "Envíame tu ubicación para poder saber dónde esta la policia y vuelve a usar el comando /poli.\n" }
   }
 }
 

@@ -1,9 +1,11 @@
+import { DynamoDB } from "aws-sdk";
+import { dynamoDbInstance } from '../common/db'
 import { DateTime } from "luxon";
-import * as provider from '../util/provider';
 
-export async function handleTinkuy(chatId, dynamoDb) {
+
+export async function processTinkuyCall(chatId) {
   const usr_tlg = "BOT#" + chatId.toString()
-  const params = {
+  const params: DynamoDB.DocumentClient.GetItemInput = {
     Key: {
       "usr_tlg": usr_tlg
     },
@@ -11,51 +13,40 @@ export async function handleTinkuy(chatId, dynamoDb) {
   };
 
   try {
-    const result = await dynamoDb.get(params).promise();
+    const result = await dynamoDbInstance.get(params).promise();
     const item = result.Item;
-    const lat_from = item.latitud.toString()
-    const long_from = item.longitud.toString();
-    const lastLocationUpdate = DateTime.fromMillis(item.tstamp * 1000);
+    const userLatitude = item.latitud.toString()
+    const userLongitude = item.longitud.toString();
+    const lastLocationUpdateTime = DateTime.fromMillis(item.tstamp * 1000);
 
     let now = DateTime.local()
-    if (now.diff(lastLocationUpdate, 'minutes').toObject().minutes > 15) {
-      let text = "Han pasado más de 15 minutos desde tu última actualización. Envíame tu ubicación y luego vuelve a escribir /tinkuy \n";
-      const request = { text: text, chat_id: chatId }
-      console.log(process.env.BASE_URL)
-      const { data } = await provider.api.post(process.env.BASE_URL, request);
-      return data;
+    if (now.diff(lastLocationUpdateTime, 'minutes').toObject().minutes > 15) {
+      return { text: "Han pasado más de 15 minutos desde tu última actualización. Envíame tu ubicación y luego vuelve a escribir /tinkuy \n" }
     }
     else {
-      const nearest = await getNearestCluster(lat_from, long_from, dynamoDb);
-      console.log('nearest' + nearest.toString())
-      console.log(process.env.LOCATION_URL)
-      const request = { latitude: nearest.lat_to, longitude: nearest.long_to, chat_id: chatId }
-      const { data } = await provider.api.post(process.env.LOCATION_URL, request);
-      return data;
+      const nearestCluster = await getCurrentNearestCluster(userLatitude, userLongitude, dynamoDbInstance);
+      console.log('Nearest' + nearestCluster.toString())
+      return {
+        latitude: nearestCluster.latitude,
+        longitude: nearestCluster.longitude
+      }
     }
   }
-  catch (Error) {
-    console.log(Error.message);
-    let text = "Envíame tu ubicación. Luego vuelve a escribir /tinkuy \n";
-    const request = { text: text, chat_id: chatId }
-    console.log(process.env.BASE_URL)
-    const { data } = await provider.api.post(process.env.BASE_URL, request);
-    return data;
+  catch (err) {
+    console.log(err.message);
+    return { text: "Envíame tu ubicación. Luego vuelve a escribir /tinkuy \n" }
   }
 }
 
-async function getNearestCluster(latitud: number, longitud: number, dynamoDb) {
-
-  let currentHour = (new Date().getUTCHours() + 24 - 5) % 24;
-  let clusterId = (currentHour < 14) ? "inactivo" : "activo"
-  let params = {
+async function getCurrentNearestCluster(latitud: number, longitud: number, dynamoDbInstance: DocumentClient) {
+  let params: DynamoDB.DocumentClient.GetItemInput = {
     Key: {
-      "cluster_id": clusterId
+      "cluster_id": "activo"
     },
     TableName: process.env.TABLE_TINKUY_CLUSTER
 
   }
-  let result = await dynamoDb.get(params).promise();
+  let result = await dynamoDbInstance.get(params).promise();
   let item = result.Item;
   console.log(item);
   let clusters_list = item.points;
@@ -73,10 +64,9 @@ async function getNearestCluster(latitud: number, longitud: number, dynamoDb) {
       min_distance_long = clusters_list[i].values[1];
     }
   }
-  result = { lat_to: min_distance_lat, long_to: min_distance_long }
-  result = { lat_to: min_distance_lat, long_to: min_distance_long }
+  let nearestCluster = { latitude: min_distance_lat, longitude: min_distance_long }
 
-  return result;
+  return nearestCluster;
 }
 
 function distance(lat1: number, lon1: number, lat2: number, lon2: number, unit: string) {

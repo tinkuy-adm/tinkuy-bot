@@ -1,4 +1,3 @@
-import * as provider from '../util/provider';
 
 // command description used in the "/start" command
 const commands = {
@@ -10,17 +9,11 @@ const commands = {
   'info': ' Información legal ⚖️ y médica 🚑, tips para identificar a un terna 👀'
 }
 
-export async function handleStart(chatId) {
+export function handleStart() {
   let text = `Hola! Soy TinkuyBot 🤖. Estoy aquí para ayudarte en la protesta 💪. Para comenzar, comparte tu ubicación en vivo! ESTO ES 100% ANÓNIMO. Escribe /start cuando quieras ver los comandos\n\n`
   for (let c in commands) {
     text += "/" + c + ": "
     text += commands[c] + "\n\n"
   }
-  // const reply_markup = { inline_keyboard: [{text: '/tinkuy'}, {text: '/poli'} , {text: '/detencion'}]}
-  const request = { text: text, chat_id: chatId }
-  console.log(process.env.BASE_URL)
-  const { data } = await provider.api.post(process.env.BASE_URL, request);
-  return data
+  return text
 }
-
-

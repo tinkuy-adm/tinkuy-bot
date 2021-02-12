@@ -1,8 +1,8 @@
 import { DynamoDB } from 'aws-sdk';
-import * as provider from '../util/provider';
+import { dynamoDbInstance } from '../common/db'
 
-export async function registerWithOrg(chatId: Number, registerInfo: String, 
-  timestamp: Number, dynamoDb: DynamoDB.DocumentClient) {
+export async function registerWithOrg(chatId: Number, registerInfo: String,
+  timestamp: Number) {
 
   const regArray = registerInfo.split(" ");
   const organizationName = regArray[0].toLowerCase();
@@ -19,9 +19,7 @@ export async function registerWithOrg(chatId: Number, registerInfo: String,
     },
     TableName: process.env.TABLE_TINKUY_COORDS
   };
-  await dynamoDb.put(params_put).promise();
+  await dynamoDbInstance.put(params_put).promise();
   const responseText = `Te has registrado con ${organizationName}. En caso te hayas equivocado al colocar tus datos, puedes volver a ingresarlos.`;
-  const request = { text: responseText, chat_id: chatId }
-  const {data} = await provider.api.post(process.env.BASE_URL, request)
-  return data;
+  return { text: responseText }
 }

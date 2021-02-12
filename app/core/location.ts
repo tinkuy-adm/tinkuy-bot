@@ -1,62 +1,69 @@
-import { DynamoDB } from 'aws-sdk';
+import { DynamoDB } from 'aws-sdk'
+import { dynamoDbInstance } from "../common/db";
 
-export async function handleLocation(chatId: Number, message, timestamp: Number, 
-  dynamoDb:DynamoDB.DocumentClient): Promise<any> {
+export async function registerUserLocation(
+  chatId: Number,
+  message,
+  timestamp: Number
+): Promise<any> {
   const lat = message.location.latitude.toString();
   const long = message.location.longitude.toString();
   const userKey = "BOT#" + chatId.toString();
-  await updateLocation(userKey, lat, long, timestamp, dynamoDb);
-  await addToLocationHistory(userKey, lat, long, timestamp, dynamoDb);
+  await updateLocation(userKey, lat, long, timestamp);
+  await addToLocationHistory(userKey, lat, long, timestamp);
   return {
-    statusCode: 200,
-    body: 'Ubicacion actualizada'
-  }
+    message: "Ubicacion registrada y actualizada",
+  };
 }
 
-async function updateLocation(userKey: String, lat: String, long: String,
-  timestamp: Number, dynamoDb: DynamoDB.DocumentClient): Promise<any> {
+async function updateLocation(
+  userKey: String,
+  lat: String,
+  long: String,
+  timestamp: Number
+): Promise<any> {
   try {
     const params_update: DynamoDB.DocumentClient.UpdateItemInput = {
       TableName: process.env.TABLE_TINKUY_COORDS,
       Key: {
-        "usr_tlg": userKey
+        usr_tlg: userKey,
       },
       UpdateExpression: "set latitud = :x, longitud = :y, tstamp = :z",
       ExpressionAttributeValues: {
         ":x": lat,
         ":y": long,
-        ":z": timestamp
-      }
+        ":z": timestamp,
+      },
     };
-    await dynamoDb.update(params_update).promise();
-  }
-  catch {
+    await dynamoDbInstance.update(params_update).promise();
+  } catch {
     const params_put: DynamoDB.DocumentClient.PutItemInput = {
       Item: {
         usr_tlg: userKey,
         latitud: lat,
         longitud: long,
-        tstamp: timestamp
+        tstamp: timestamp,
       },
-      TableName: process.env.TABLE_TINKUY_COORDS
+      TableName: process.env.TABLE_TINKUY_COORDS,
     };
-    await dynamoDb.put(params_put).promise();
+    await dynamoDbInstance.put(params_put).promise();
   }
 }
 
-async function addToLocationHistory(userKey: String, lat: String, long: String, 
-  timestamp: Number, dynamoDb: DynamoDB.DocumentClient): Promise<any> {
-
+async function addToLocationHistory(
+  userKey: String,
+  lat: String,
+  long: String,
+  timestamp: Number,
+): Promise<any> {
   const params_put: DynamoDB.DocumentClient.PutItemInput = {
     Item: {
       usr_tlg: userKey,
       tstamp: timestamp,
       latitud: lat,
-      longitud: long
+      longitud: long,
     },
-    TableName: process.env.TABLE_TINKUY_COORDS_HIST
+    TableName: process.env.TABLE_TINKUY_COORDS_HIST,
   };
-  await dynamoDb.put(params_put).promise();
+  await dynamoDbInstance.put(params_put).promise();
 }
-
-

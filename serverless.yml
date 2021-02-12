@@ -6,11 +6,6 @@ provider:
   stage: ${opt:stage}
   region: us-east-1
   environment:
-    BASE_URL: https://api.telegram.org/bot${env:TELEGRAM_KEY}/sendMessage
-    SET_WEBHOOK: https://api.telegram.org/bot${env:TELEGRAM_KEY}/setWebhook 
-    LOCATION_URL: https://api.telegram.org/bot${env:TELEGRAM_KEY}/sendLocation
-    PHOTOS_URL: https://api.telegram.org/bot${env:TELEGRAM_KEY}/sendPhoto
-    
     SERVERLESS_REGION: us-east-1
     TABLE_TINKUY_COORDS: usr-coords-${opt:stage}
     TABLE_TINKUY_COORDS_HIST: usr-coords-hist-${opt:stage}

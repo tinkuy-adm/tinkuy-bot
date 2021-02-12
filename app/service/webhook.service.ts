@@ -1,71 +1,97 @@
-import { DynamoDB } from 'aws-sdk';
+
 import { DateTime } from "luxon";
 
-import * as provider from '../util/provider';
+import { telegramBot } from '../common/telegram'
 import { handleStart } from '../core/start';
-import { handleLocation } from '../core/location';
+import { registerUserLocation } from '../core/location';
 import { informPolicePresence } from '../core/police';
 import { informStatus } from '../core/status';
-import { handleTinkuy } from '../core/tinkuy';
+import { processTinkuyCall } from '../core/tinkuy';
 import { sendInfo } from '../core/info';
 import { registerWithOrg } from '../core/org'
 
 export const response = async (event: any) => {
-
   const body = JSON.parse(event.body)
-  let message = body.hasOwnProperty("message") ? body.message : body.edited_message
-  const chatId = message.chat.id
+  const userMessage = body.hasOwnProperty("userMessage") ? body.userMessage : body.edited_userMessage
+  const chatId = userMessage.chat.id
   const now = DateTime.local()
   const timestamp = Math.floor(now.toSeconds())
   let text = ""
-  const dynamoDb = new DynamoDB.DocumentClient({ region: process.env.SERVERLESS_REGION })
-  try {
+  let webhookResponse = {}
 
-    if (message.text == '/start') {
-      const data = await handleStart(chatId);
-      return data;
-    }
-    else if (message.text == '/info') {
-      await sendInfo(chatId)
-    }
-    else if (message.hasOwnProperty("location")) {
-      const response = await handleLocation(chatId, message, timestamp, dynamoDb)
-      return response;
-    }
-    else if (message.text == '/tinkuy') {
-      const { data } = await handleTinkuy(chatId, dynamoDb);
-      return data;
-    }
-    else if (message.text == '/poli') {
-      const { data } = await informPolicePresence(chatId, dynamoDb);
-      return data;
-    }
-    else if (message.text == '/detencion') {
-      const { data } = await informStatus(chatId, dynamoDb, 'detencion');
-      return data;
-    }
-    else if (message.text == '/sos') {
-      const { data } = await informStatus(chatId, dynamoDb, 'sos');
-      return data;
-    }
-    else if (message.text.substring(0, 4) == '/org') {
-      const registerInfo = message.text.substring(4, message.text.length).trim()
-      const { data } = await registerWithOrg(chatId, registerInfo, timestamp, dynamoDb);
-      return data;
-    }
-    else {
-      text = "No te entendi";
-      const request = { text: text, chat_id: chatId }
-      console.log(process.env.BASE_URL)
-      const { data } = await provider.api.post(process.env.BASE_URL, request);
-      return data;
+  if (userMessage.text == '/start') {
+    let text = handleStart();
+    let tlgApiResponse = await telegramBot.sendMessage(chatId, text)
+    webhookResponse = {
+      telegramApiResponse: tlgApiResponse
     }
   }
-  catch (err) {
-    console.log(err)
-    return {
-      'statusCode': 500,
-      'body': `Internal server error`
-    };
+
+  else if (userMessage.text == '/info') {
+    let text = sendInfo()
+    let tlgApiResponse = await telegramBot.sendMessage(chatId, text)
+    webhookResponse = {
+      telegramApiResponse: tlgApiResponse
+    }
   }
+
+  else if (userMessage.hasOwnProperty("location")) {
+    webhookResponse = await registerUserLocation(chatId, userMessage, timestamp)
+  }
+
+  else if (userMessage.text == '/tinkuy') {
+    let result = await processTinkuyCall(chatId);
+    let tlgApiResponse = {}
+    if (result.hasOwnProperty('latitude')) {
+      tlgApiResponse = await telegramBot.sendLocation(chatId, result.latitude, result.longitude)
+    } 
+    else if (result.hasOwnProperty('text')) {
+      tlgApiResponse = await telegramBot.sendMessage(chatId, result.text)
+    }
+    webhookResponse = {
+      telegramApiResponse: tlgApiResponse
+    }
+  }
+
+  else if (userMessage.text == '/poli') {
+    let result = await informPolicePresence(chatId);
+    let tlgApiResponse = await telegramBot.sendMessage(chatId, result.text)
+    webhookResponse = {
+      telegramApiResponse: tlgApiResponse
+    }
+  }
+
+  else if (userMessage.text == '/detencion') {
+    let result = await informStatus(chatId, 'detencion');
+    let tlgApiResponse = telegramBot.sendMessage(chatId, result.text)
+    webhookResponse = {
+      telegramApiResponse: tlgApiResponse
+    }
+  }
+
+  else if (userMessage.text == '/sos') {
+    let result = await informStatus(chatId, 'sos');
+    let tlgApiResponse = telegramBot.sendMessage(chatId, result.text)
+    webhookResponse = {
+      telegramApiResponse: tlgApiResponse
+    }
+  }
+
+  else if (userMessage.text.substring(0, 4) == '/org') {
+    const registerInfo = userMessage.text.substring(4, userMessage.text.length).trim()
+    let result = await registerWithOrg(chatId, registerInfo, timestamp);
+    let tlgApiResponse = telegramBot.sendMessage(chatId, result.text)
+    webhookResponse = {
+      telegramApiResponse: tlgApiResponse
+    }
+  }
+
+  else {
+    text = "No te entendi";
+    let tlgApiResponse = await telegramBot.sendMessage(chatId, text)
+    webhookResponse = {
+      telegramApiResponse: tlgApiResponse
+    }
+  }
+  return webhookResponse
 };

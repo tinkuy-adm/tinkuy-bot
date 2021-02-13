@@ -5,7 +5,6 @@ import * as webhookService from '../service/webhook.service'
 export class WebhookController {
 
   async handleMessage(event: APIGatewayProxyEvent, context?: Context): Promise<APIGatewayProxyResult> {
-    console.log('functionName', context.functionName);
     const eventBody = JSON.parse(event.body)
     let lambdaResponse: APIGatewayProxyResult = {
       statusCode: 200,
@@ -22,6 +21,7 @@ export class WebhookController {
       telegramBot.sendMessage(eventBody.userMessage.chat.id, "Ups, ocurrió un error")
     }
     finally {
+      console.log(`Webhook response: ${lambdaResponse}`)
       return lambdaResponse
     }
   }

@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { DynamoDB } from 'aws-sdk';
-import { dynamoDbInstance } from '../common/db'
+import dynDb from '../common/dynamo'
 
 export async function informPolicePresence(chatId) {
   const usr_tlg = "BOT#" + chatId.toString()
@@ -12,7 +12,7 @@ export async function informPolicePresence(chatId) {
   }
 
   try {
-    const result = await dynamoDbInstance.get(params).promise();
+    const result = await dynDb.get(params).promise();
     const item = result.Item;
     const lat = item.latitud.toString()
     const long = item.longitud.toString();
@@ -30,7 +30,7 @@ export async function informPolicePresence(chatId) {
       TableName: process.env.TABLE_POLICE_COORDS
     };
 
-    await dynamoDbInstance.put(insert_params).promise();
+    await dynDb.put(insert_params).promise();
 
     return { text: "Ubicación de policia actualizada. Gracias por colaborar!\n" }
   }

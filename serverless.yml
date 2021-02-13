@@ -9,7 +9,7 @@ provider:
     SERVERLESS_REGION: us-east-1
     TABLE_TINKUY_COORDS: usr-coords-${opt:stage}
     TABLE_TINKUY_COORDS_HIST: usr-coords-hist-${opt:stage}
-    TABLE_TINKUY_CLUSTER: tinkuy-clusters.${opt:stage}
+    TABLE_TINKUY_CLUSTER: tinkuy-clusters-${opt:stage}
     TABLE_POLICE_COORDS: police-coords-${opt:stage}
 
     

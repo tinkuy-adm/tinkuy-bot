@@ -1,5 +1,5 @@
 import { DynamoDB } from 'aws-sdk'
-import { dynamoDbInstance } from "../common/db";
+import dynDb from "../common/dynamo";
 
 export async function registerUserLocation(
   chatId: Number,
@@ -35,7 +35,7 @@ async function updateLocation(
         ":z": timestamp,
       },
     };
-    await dynamoDbInstance.update(params_update).promise();
+    await dynDb.update(params_update).promise();
   } catch {
     const params_put: DynamoDB.DocumentClient.PutItemInput = {
       Item: {
@@ -46,7 +46,7 @@ async function updateLocation(
       },
       TableName: process.env.TABLE_TINKUY_COORDS,
     };
-    await dynamoDbInstance.put(params_put).promise();
+    await dynDb.put(params_put).promise();
   }
 }
 
@@ -65,5 +65,5 @@ async function addToLocationHistory(
     },
     TableName: process.env.TABLE_TINKUY_COORDS_HIST,
   };
-  await dynamoDbInstance.put(params_put).promise();
+  await dynDb.put(params_put).promise();
 }

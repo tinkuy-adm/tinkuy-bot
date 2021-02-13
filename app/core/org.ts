@@ -1,5 +1,5 @@
 import { DynamoDB } from 'aws-sdk';
-import { dynamoDbInstance } from '../common/db'
+import dynDb from '../common/dynamo'
 
 export async function registerWithOrg(chatId: Number, registerInfo: String,
   timestamp: Number) {
@@ -19,7 +19,7 @@ export async function registerWithOrg(chatId: Number, registerInfo: String,
     },
     TableName: process.env.TABLE_TINKUY_COORDS
   };
-  await dynamoDbInstance.put(params_put).promise();
+  await dynDb.put(params_put).promise();
   const responseText = `Te has registrado con ${organizationName}. En caso te hayas equivocado al colocar tus datos, puedes volver a ingresarlos.`;
   return { text: responseText }
 }

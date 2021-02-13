@@ -1,5 +1,5 @@
 import { DynamoDB } from "aws-sdk";
-import { dynamoDbInstance } from '../common/db'
+import dynDb from '../common/dynamo'
 import { DateTime } from "luxon";
 
 
@@ -13,7 +13,7 @@ export async function processTinkuyCall(chatId) {
   };
 
   try {
-    const result = await dynamoDbInstance.get(params).promise();
+    const result = await dynDb.get(params).promise();
     const item = result.Item;
     const userLatitude = item.latitud.toString()
     const userLongitude = item.longitud.toString();
@@ -24,7 +24,7 @@ export async function processTinkuyCall(chatId) {
       return { text: "Han pasado más de 15 minutos desde tu última actualización. Envíame tu ubicación y luego vuelve a escribir /tinkuy \n" }
     }
     else {
-      const nearestCluster = await getCurrentNearestCluster(userLatitude, userLongitude, dynamoDbInstance);
+      const nearestCluster = await getCurrentNearestCluster(userLatitude, userLongitude, dynDb);
       console.log('Nearest' + nearestCluster.toString())
       return {
         latitude: nearestCluster.latitude,
@@ -38,7 +38,7 @@ export async function processTinkuyCall(chatId) {
   }
 }
 
-async function getCurrentNearestCluster(latitud: number, longitud: number, dynamoDbInstance: DocumentClient) {
+async function getCurrentNearestCluster(latitud: number, longitud: number, dynDb: DocumentClient) {
   let params: DynamoDB.DocumentClient.GetItemInput = {
     Key: {
       "cluster_id": "activo"
@@ -46,7 +46,7 @@ async function getCurrentNearestCluster(latitud: number, longitud: number, dynam
     TableName: process.env.TABLE_TINKUY_CLUSTER
 
   }
-  let result = await dynamoDbInstance.get(params).promise();
+  let result = await dynDb.get(params).promise();
   let item = result.Item;
   console.log(item);
   let clusters_list = item.points;

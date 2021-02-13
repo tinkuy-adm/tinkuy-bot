@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { DynamoDB } from 'aws-sdk'
-import { dynamoDbInstance } from '../common/db'
+import dynDb from '../common/dynamo'
 
 const reply_message = {
   detencion: {
@@ -25,7 +25,7 @@ export async function informStatus(chatId, status) {
   }
 
   try {
-    const result = await dynamoDbInstance.get(params).promise();
+    const result = await dynDb.get(params).promise();
     const item = result.Item;
     const lat = item.latitud.toString()
     const long = item.longitud.toString();
@@ -58,7 +58,7 @@ export async function informStatus(chatId, status) {
           ":z": timestamp
         }
       };
-      await dynamoDbInstance.update(params_update).promise();
+      await dynDb.update(params_update).promise();
     }
     catch (Error) {
       const params_put = {
@@ -72,7 +72,7 @@ export async function informStatus(chatId, status) {
         TableName: process.env.TABLE_TINKUY_COORDS
       };
 
-      await dynamoDbInstance.put(params_put).promise();
+      await dynDb.put(params_put).promise();
     }
 
     text += ' ' + reply_message[status].successReply;

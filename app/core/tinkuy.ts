@@ -24,7 +24,7 @@ export async function processTinkuyCall(chatId) {
       return { text: "Han pasado más de 15 minutos desde tu última actualización. Envíame tu ubicación y luego vuelve a escribir /tinkuy \n" }
     }
     else {
-      const nearestCluster = await getCurrentNearestCluster(userLatitude, userLongitude, dynDb);
+      const nearestCluster = await getCurrentNearestCluster(userLatitude, userLongitude);
       console.log('Nearest' + nearestCluster.toString())
       return {
         latitude: nearestCluster.latitude,
@@ -38,7 +38,7 @@ export async function processTinkuyCall(chatId) {
   }
 }
 
-async function getCurrentNearestCluster(latitud: number, longitud: number, dynDb: DocumentClient) {
+async function getCurrentNearestCluster(latitud: number, longitud: number) {
   let params: DynamoDB.DocumentClient.GetItemInput = {
     Key: {
       "cluster_id": "activo"

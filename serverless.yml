@@ -12,7 +12,6 @@ provider:
     TABLE_TINKUY_CLUSTER: tinkuy-clusters-${opt:stage}
     TABLE_POLICE_COORDS: police-coords-${opt:stage}
 
-    
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -30,7 +29,7 @@ provider:
       Resource: "*"
 
 plugins:
-  - serverless-plugin-typescript 
+  - serverless-plugin-typescript
   - serverless-offline
 
 functions:
